@@ -1,0 +1,17 @@
+.btn-main{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	color: white;
+	fill: white;
+	stroke: white;
+	background: var(--primary);
+	border-radius: 12px;
+	height: 42px;
+	padding: 0 24px;
+	transition: background 0.15s ease;
+	&:hover{
+		background: var(--primary-hover);
+	}
+}

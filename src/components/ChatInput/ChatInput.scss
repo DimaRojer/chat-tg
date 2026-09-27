@@ -1,0 +1,16 @@
+.chat-input {
+    padding: 16px 24px;
+    background: white;
+    height: 80px;
+    border-top: 1px solid var(--border);
+    &__wrapper{
+        display: flex;
+        gap: 12px;
+    }
+    &__input{
+        width: 100%;
+        padding: 0 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+}

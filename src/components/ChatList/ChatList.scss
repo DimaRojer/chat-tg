@@ -1,0 +1,15 @@
+.chat-list{
+	width: 360px;
+	border: 1px solid var(--border);
+	&__top{
+		padding-bottom: 16px;
+		border-bottom: 1px solid var(--border);
+	}
+	&__header{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 64px;
+		padding: 0 20px;
+	}
+}

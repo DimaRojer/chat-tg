@@ -1,0 +1,96 @@
+.new-chat {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fade-in .2s ease;
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, .35);
+        backdrop-filter: blur(4px);
+    }
+
+    &__content {
+        position: relative;
+        width: 100%;
+        max-width: 440px;
+        padding: 24px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        animation: modal-show .25s ease;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+    }
+    &__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--gray-primary);
+        border-radius: 8px;
+		.rotate-45{
+			transform: rotate(45deg);
+		}
+    }
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        label {
+            font-size: 0.735rem;
+            font-weight: 500;
+            color: var(--gray);
+        }
+    }
+    &__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+@keyframes modal-show {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

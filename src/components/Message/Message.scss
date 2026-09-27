@@ -1,0 +1,43 @@
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    margin: 0;
+    padding: 20px;
+    list-style: none;
+}
+
+.message {
+    display: flex;
+    &--incoming {
+        justify-content: flex-start;
+    }
+    &--outgoing {
+        justify-content: flex-end;
+    }
+    &__body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        max-width: 480px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    &--outgoing &__body {
+        background: var(--primary-light);
+    }
+    &__text {
+        line-height: 1.4;
+        color: var(--text);
+        word-break: break-word;
+    }
+    &__time {
+        align-self: flex-end;
+        margin-top: 4px;
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+}

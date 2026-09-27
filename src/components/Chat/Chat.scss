@@ -1,0 +1,33 @@
+.chat{
+	background-color: var(--gray-primary);
+	height: 100%;
+    min-width: 0;
+	&__wrapper{
+		display: flex;
+        flex-direction: column;
+        height: 100%;
+	}
+	&__error{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 10px 16px;
+		margin: 0 16px;
+		border-radius: 8px;
+		background-color: #FDECEC;
+		color: #B42318;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+	&__error-close{
+		flex-shrink: 0;
+		border: none;
+		background: none;
+		cursor: pointer;
+		color: inherit;
+		font-size: 16px;
+		line-height: 1;
+		padding: 0 4px;
+	}
+}

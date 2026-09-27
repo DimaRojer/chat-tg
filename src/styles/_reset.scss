@@ -1,0 +1,49 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+button, input, textarea {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+input, textarea {
+    border: 0;
+    outline: none;
+}
+
+img, svg {
+    display: block;
+    max-width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, p, a{
+    margin: 0;
+    line-height: 1;
+}
+
+ul, ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+a{
+    text-decoration: none;
+}
