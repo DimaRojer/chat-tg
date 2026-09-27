@@ -10,17 +10,6 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    server: {
-        proxy: {
-            "/green-api": {
-                target: "https://api.green-api.com",
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/green-api/, ""),
-                timeout: 60000,
-                proxyTimeout: 60000,
-            },
-        },
-    },
     css: {
         preprocessorOptions: {
             scss: {

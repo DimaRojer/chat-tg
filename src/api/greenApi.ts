@@ -1,207 +1,164 @@
 const getBaseUrl = () => {
-    const idInstance = localStorage.getItem("idInstance");
-    return `/green-api/waInstance${idInstance}`;
+  const idInstance = localStorage.getItem("idInstance");
+  return `https://api.green-api.com/waInstance${idInstance}`;
 };
 
 const getToken = () => localStorage.getItem("apiTokenInstance") || "";
 
 export const configureInstanceSettings = async () => {
-    const url = `${getBaseUrl()}/setSettings/${getToken()}`;
+  const url = `${getBaseUrl()}/setSettings/${getToken()}`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        webhookUrl: "",
+        incomingWebhook: "yes",
+        outgoingWebhook: "yes",
+        stateInstanceWebhook: "yes",
+        deviceWebhook: "no",
+      }),
+    });
 
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                webhookUrl: "",
-                incomingWebhook: "yes",
-                outgoingWebhook: "yes",
-                stateInstanceWebhook: "yes",
-                deviceWebhook: "no",
-            }),
-        });
-
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-
-        console.log("SETTINGS UPDATE RESULT:", data);
-    } catch (error) {
-        console.error("FAILED TO SET SETTINGS:", error);
-    }
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    console.log("SETTINGS UPDATE RESULT:", data);
+  } catch (err) {
+    console.error("FAILED TO SET SETTINGS:", err);
+  }
 };
 
 export const receiveNotification = async () => {
-    try {
-        const response = await fetch(
-            `${getBaseUrl()}/receiveNotification/${getToken()}`
-        );
+  try {
+    const response = await fetch(
+      `${getBaseUrl()}/receiveNotification/${getToken()}`
+    );
 
-        if (!response.ok) return null;
+    if (!response.ok) return null;
 
-        const text = await response.text();
+    const text = await response.text();
+    if (!text) return null;
 
-        if (!text) return null;
-
-        return JSON.parse(text);
-    } catch (error) {
-        console.error("RECEIVE ERROR:", error);
-        return null;
-    }
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("RECEIVE ERROR:", error);
+    return null;
+  }
 };
 
 export const deleteNotification = async (receiptId: number) => {
-    if (!receiptId) return;
-
-    try {
-        const res = await fetch(
-            `${getBaseUrl()}/deleteNotification/${getToken()}/${receiptId}`,
-            {
-                method: "DELETE",
-            }
-        );
-
-        if (!res.ok) {
-            console.warn("DELETE FAILED", res.status, receiptId);
-        }
-    } catch (error) {
-        console.error("DELETE ERROR:", error);
-    }
+  if (!receiptId) return;
+  try {
+    const res = await fetch(
+      `${getBaseUrl()}/deleteNotification/${getToken()}/${receiptId}`,
+      { method: "DELETE" }
+    );
+    if (!res.ok) console.warn("DELETE FAILED", res.status, receiptId);
+  } catch (error) {
+    console.error("DELETE ERROR:", error);
+  }
 };
 
 const chatIdCache = new Map<string, string>();
 
-export const checkAccount = async (
-    phone: string
-): Promise<string | null> => {
-    const cleanPhone = phone.replace(/\D/g, "");
+export const checkAccount = async (phone: string): Promise<string | null> => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  if (!cleanPhone) return null;
 
-    if (!cleanPhone) return null;
+  if (chatIdCache.has(cleanPhone)) return chatIdCache.get(cleanPhone)!;
 
-    if (chatIdCache.has(cleanPhone)) {
-        return chatIdCache.get(cleanPhone)!;
+  try {
+    const res = await fetch(`${getBaseUrl()}/checkAccount/${getToken()}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phoneNumber: Number(cleanPhone) }),
+    });
+
+    if (!res.ok) {
+      console.warn("checkAccount failed:", res.status);
+      return null;
     }
 
-    try {
-        const res = await fetch(
-            `${getBaseUrl()}/checkAccount/${getToken()}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    phoneNumber: Number(cleanPhone),
-                }),
-            }
-        );
+    const data = await res.json();
+    console.log("checkAccount:", cleanPhone, "->", data);
 
-        if (!res.ok) return null;
-
-        const data = await res.json();
-
-        if (data?.exist && data?.chatId) {
-            const chatId = String(data.chatId);
-
-            chatIdCache.set(cleanPhone, chatId);
-
-            return chatId;
-        }
-
-        return null;
-    } catch (error) {
-        console.error("checkAccount error:", error);
-        return null;
+    if (data?.exist && data?.chatId) {
+      const chatId = String(data.chatId);
+      chatIdCache.set(cleanPhone, chatId);
+      return chatId;
     }
+
+    return null;
+  } catch (error) {
+    console.error("checkAccount error:", error);
+    return null;
+  }
 };
 
 export const sendMessage = async (
-    phone: string,
-    text: string,
-    knownChatId?: string
+  phone: string,
+  text: string,
+  knownChatId?: string
 ) => {
-    const chatId = knownChatId ?? (await checkAccount(phone));
+  const chatId = knownChatId ?? (await checkAccount(phone));
 
-    if (!chatId) {
-        throw new Error("NO_ACCOUNT");
-    }
+  if (!chatId) {
+    throw new Error("NO_TELEGRAM_ACCOUNT");
+  }
 
-    const response = await fetch(
-        `${getBaseUrl()}/sendMessage/${getToken()}`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                chatId,
-                message: text,
-            }),
-        }
-    );
+  const response = await fetch(`${getBaseUrl()}/sendMessage/${getToken()}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chatId, message: text }),
+  });
 
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
+  if (!response.ok) {
+    const errText = await response.text().catch(() => "");
+    throw new Error(`sendMessage failed: ${response.status} ${errText}`);
+  }
 
-        throw new Error(
-            `sendMessage failed: ${response.status} ${errorText}`
-        );
-    }
-
-    const data = await response.json();
-
-    return {
-        ...data,
-        chatId,
-    };
+  const data = await response.json();
+  return { ...data, chatId };
 };
 
 const lidCache = new Map<string, string>();
 
 export const resolvePhoneByChatId = async (
-    chatId: string
+  incomingChatId: string
 ): Promise<string | null> => {
-    if (!chatId) return null;
+  const lid = incomingChatId.replace(/@.*/, "").replace(/\D/g, "");
+  if (lidCache.has(lid)) return lidCache.get(lid)!;
 
-    if (lidCache.has(chatId)) {
-        return lidCache.get(chatId)!;
+  try {
+    const res = await fetch(
+      `${getBaseUrl()}/getContactInfo/${getToken()}?chatId=${encodeURIComponent(
+        incomingChatId
+      )}`
+    );
+    if (!res.ok) {
+      console.warn("getContactInfo failed:", res.status);
+      return null;
     }
 
-    try {
-        const res = await fetch(
-            `${getBaseUrl()}/getContactInfo/${getToken()}?chatId=${encodeURIComponent(
-                chatId
-            )}`
-        );
+    const data = await res.json();
+    console.log("getContactInfo:", incomingChatId, "->", data);
 
-        if (!res.ok) {
-            console.warn("getContactInfo failed:", res.status);
-            return null;
-        }
+    const raw = data?.phoneNumber ?? data?.chatId ?? "";
+    const phone = String(raw).replace(/\D/g, "");
 
-        const data = await res.json();
-
-        const raw = data?.phoneNumber ?? data?.chatId ?? "";
-        const phone = String(raw).replace(/\D/g, "");
-
-        if (!phone) return null;
-
-        lidCache.set(chatId, phone);
-
-        return phone;
-    } catch (error) {
-        console.error("resolvePhoneByChatId error:", error);
-        return null;
+    if (phone) {
+      lidCache.set(lid, phone);
+      return phone;
     }
+    return null;
+  } catch (error) {
+    console.error("resolvePhoneByChatId error:", error);
+    return null;
+  }
 };
 
 export const normalizePhone = (raw: string): string => {
-    let phone = String(raw).replace(/\D/g, "");
-
-    if (phone.startsWith("8") && phone.length === 11) {
-        phone = "7" + phone.slice(1);
-    }
-
-    return phone;
+  let n = String(raw).replace(/\D/g, "");
+  if (n.startsWith("8") && n.length === 11) n = "7" + n.slice(1);
+  return n;
 };
