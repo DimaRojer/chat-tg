@@ -2,7 +2,7 @@ Telegram Chat (тестовое задание Green API)
 
 Стек
 
-React + TS, React Router, Vite, SCSS
+React + TS, Vite, SCSS
 
 Запуск
 npm install
